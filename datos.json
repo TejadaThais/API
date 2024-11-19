@@ -1,81 +1,126 @@
 {
     "usuarios": [
-        {
-            "id": 1,
-            "nombre": "Juan Pérez",
-            "direccion": "Calle Falsa 123",
-            "contacto": "juan.perez@gmail.com",
-            "usuario": "jperez",
-            "contraseña": "123456"
-        },
-        {
-            "id": 2,
-            "nombre": "María García",
-            "direccion": "Av. Siempre Viva 456",
-            "contacto": "maria.garcia@gmail.com",
-            "usuario": "mgarcia",
-            "contraseña": "654321"
-        }
+      {
+        "id": 1,
+        "nombre": "Sergio Poso",
+        "direccion": "asdsadas",
+        "contacto": "juan.perez@example.com",
+        "usuario": "juan123",
+        "contraseña": "password123"
+      },
+      {
+        "id": 3,
+        "nombre": "jsadjsada",
+        "direccion": "Av. Siempre Viva 456",
+        "contacto": "maria.garcia@gmail.com",
+        "usuario": "mgarcia",
+        "contraseña": "654321"
+      },
+      {
+        "id": 5,
+        "nombre": "Sergio Paez",
+        "direccion": "Calle Lanin 123",
+        "contacto": "sergio.paez@example.com",
+        "usuario": "sergio123",
+        "contraseña": "password555"
+      }
     ],
     "cuentas": [
-        {
-            "id": 1,
-            "numeroCuenta": "1234567890",
-            "tipoCuenta": "Corriente",
-            "saldoActual": 5000,
-            "fechaApertura": "2024-01-15",
-            "usuarioId": 1
-        },
-        {
-            "id": 2,
-            "numeroCuenta": "0987654321",
-            "tipoCuenta": "Ahorro",
-            "saldoActual": 15000,
-            "fechaApertura": "2023-12-10",
-            "usuarioId": 2
-        }
+      {
+        "id": 1,
+        "numeroCuenta": "12345678",
+        "tipoCuenta": "Ahorro",
+        "saldo": 3999,
+        "fechaApertura": "2024-11-19",
+        "usuarioId": 1
+      },
+      {
+        "id": 2,
+        "numeroCuenta": "87654321",
+        "tipoCuenta": "Corriente",
+        "saldo": 200000,
+        "fechaApertura": "2024-11-19",
+        "usuarioId": 2,
+        "nombre": "Sergio Poso"
+      }
     ],
     "transacciones": [
-        {
-            "id": 1,
-            "tipoTransaccion": "Depósito",
-            "monto": 1000,
-            "fechaHora": "2024-11-12T10:00:00",
-            "cuentaOrigen": "1234567890",
-            "cuentaDestino": null
-        },
-        {
-            "id": 2,
-            "tipoTransaccion": "Transferencia",
-            "monto": 500,
-            "fechaHora": "2024-11-13T12:30:00",
-            "cuentaOrigen": "1234567890",
-            "cuentaDestino": "0987654321"
-        }
+      {
+        "id": 1,
+        "tipo": "depósito",
+        "monto": 2000,
+        "cuentaOrigen": null,
+        "cuentaDestino": 1,
+        "fecha": "2024-11-01"
+      },
+      {
+        "id": 2,
+        "tipo": "retiro",
+        "monto": 500,
+        "cuentaOrigen": 1,
+        "cuentaDestino": null,
+        "fecha": "2024-11-10"
+      },
+      {
+        "id": 3,
+        "tipo": "retiro",
+        "monto": 1000,
+        "cuentaOrigen": 1,
+        "cuentaDestino": 2,
+        "fecha": "2024-20-11"
+      },
+      {
+        "id": 4,
+        "tipo": "retiro",
+        "monto": 1,
+        "cuentaOrigen": 1,
+        "cuentaDestino": 2,
+        "fecha": "2024-20-11"
+      }
     ],
     "tarjetas": [
-        {
-            "id": 1,
-            "numeroTarjeta": "4111111111111111",
-            "tipoTarjeta": "Débito",
-            "fechaVencimiento": "2026-08-30",
-            "limiteCredito": null
-        },
-        {
-            "id": 2,
-            "numeroTarjeta": "5555555555554444",
-            "tipoTarjeta": "Crédito",
-            "fechaVencimiento": "2027-01-20",
-            "limiteCredito": 10000
-        }
+      {
+        "id": 1,
+        "numero": "4111111111111111",
+        "tipo": "Crédito",
+        "fechaVencimiento": "2026-08",
+        "limiteCredito": 20000,
+        "usuarioId": 1
+      },
+      {
+        "id": 2,
+        "numero": "4222222222222222",
+        "tipo": "Débito",
+        "fechaVencimiento": "2027-01",
+        "usuarioId": 2
+      },
+      {
+        "id": 5,
+        "numero": "1555555555555555",
+        "tipo": "Debito",
+        "fechaVencimiento": "2026-06",
+        "limiteCredito": 10000,
+        "usuarioId": 1
+      }
     ],
     "prestamos": [
-        {
-            "id": 1,
-            "montoPrestamo": 20000,
-            "tasaInteres": 5,
-            "plazo": "24 meses",
-            "pagosMensuales": 880
-        }
+      {
+        "id": 1,
+        "monto": 100000,
+        "interes": 5,
+        "plazoMeses": 60,
+        "usuarioId": 1,
+        "fechaInicio": "2024-11-19",
+        "pagosMensuales": 2124.7
+      },
+      {
+        "id": 1,
+        "monto": 250000,
+        "interes": 4,
+        "plazoMeses": 60,
+        "usuarioId": 1,
+        "fechaInicio": "2024-11-19",
+        "pagosMensuales": 1000.7
+      }
     ]
-}
+  }

@@ -1,274 +1,235 @@
-const express = require('express'); 
-const fs = require('fs'); 
-const bodyParser = require('body-parser'); 
-const app = express(); 
-const bodyP = bodyParser.json(); 
-app.use(bodyP); 
-const port = 3000; // Definimos el puerto donde el servidor estará disponible.
+const express = require('express');
+const fs = require('fs');
+const bodyParser = require('body-parser');
+const app = express();
+app.use(bodyParser.json());
+const port = 3000;
 
-// ** Función para leer datos desde el archivo "datos.json". */
 const leerDatos = () => {
     try {
-        const datos = fs.readFileSync("./datos.json"); // Lee el archivo de manera sincrónica.
-        return JSON.parse(datos); // Convierte el contenido del archivo de JSON a objeto JavaScript.
+        const datos = fs.readFileSync('./datos.json');
+        return JSON.parse(datos);
     } catch (error) {
-        console.log(error); // Si ocurre un error, lo mostramos en la consola.
+        console.error('Error al leer datos:', error);
     }
 };
 
-// ** Función para escribir datos en el archivo "datos.json". */
-const escribir = (datos) => {
+const escribirDatos = (datos) => {
     try {
-        fs.writeFileSync("./datos.json", JSON.stringify(datos, null, 2)); // Escribe el archivo con formato.
+        fs.writeFileSync('./datos.json', JSON.stringify(datos));
     } catch (error) {
-        console.log(error); // Si ocurre un error al escribir, lo mostramos en la consola.
+        console.error('Error al escribir datos:', error);
     }
 };
 
-// ** Validar si una cuenta tiene saldo suficiente para realizar una operación. */
-const validarSaldoSuficiente = (cuenta, monto) => {
-    return cuenta.saldoActual >= monto; // Retorna true si el saldo es suficiente, de lo contrario false.
-};
+app.get('/', (req, res) => {
+    res.send('API de Control de Cuentas Bancarias.');
+});
 
-// ** Validar que una fecha ingresada no sea anterior al día actual. */
-const validarFecha = (fecha) => {
-    const fechaIngresada = new Date(fecha); // Convertimos la fecha ingresada a objeto Date.
-    const hoy = new Date(); // Obtenemos la fecha actual.
-    return fechaIngresada >= hoy; // Comprobamos que la fecha ingresada no sea anterior.
-};
-
-// Listar todos los usuarios.
+// -------------------USUARIOS-----------------------
 app.get('/ListarUsuarios', (req, res) => {
-    const datos = leerDatos(); // Leemos los datos desde el archivo.
-    res.json(datos.usuarios); // Devolvemos la lista de usuarios en formato JSON.
+    const datos = leerDatos();
+    res.json(datos.usuarios);
 });
 
-// Buscar un usuario por su ID.
-app.get('/BuscarUsuario/:id', (req, res) => {
-    const datos = leerDatos(); // Leemos los datos desde el archivo.
-    const id = parseInt(req.params.id); // Obtenemos el ID desde los parámetros.
-    const usuario = datos.usuarios.find((usuario) => usuario.id === id); // Buscamos al usuario por ID.
-    if (usuario) {
-        res.json(usuario); // Si existe, lo devolvemos en la respuesta.
-    } else {
-        res.status(404).send("Usuario no encontrado."); // Si no existe, devolvemos un error 404.
-    }
+app.get('/ListarUsuarios/:id', (req, res) => {
+    const datos = leerDatos();
+    const id = parseInt(req.params.id);
+    const usuario = datos.usuarios.find((u) => u.id === id);
+    usuario ? res.json(usuario) : res.status(404).send('Usuario no encontrado.');
 });
 
-// Crear un nuevo usuario.
-app.post('/SubirUsuario', (req, res) => {
-    const datos = leerDatos(); // Leemos los datos existentes.
-    const body = req.body; // Obtenemos los datos del cuerpo de la solicitud.
+app.post('/SubirUsuarios', (req, res) => {
+    const datos = leerDatos();
     const nuevoUsuario = {
-        id: datos.usuarios.length + 1, // Generamos un nuevo ID para el usuario.
-        ...body, // Añadimos el resto de los datos enviados en el cuerpo.
+        id: datos.usuarios.length + 1,
+        ...req.body,
     };
-    datos.usuarios.push(nuevoUsuario); // Agregamos el nuevo usuario al array.
-    escribir(datos); // Guardamos los cambios en el archivo.
-    res.json(nuevoUsuario); // Devolvemos el nuevo usuario en la respuesta.
+    datos.usuarios.push(nuevoUsuario);
+    escribirDatos(datos);
+    res.json(nuevoUsuario);
 });
 
-// Actualizar un usuario existente por su ID.
-app.put('/ActualizarUsuario/:id', (req, res) => {
-    const datos = leerDatos(); // Leemos los datos existentes.
-    const body = req.body; // Obtenemos los datos actualizados del cuerpo de la solicitud.
-    const id = parseInt(req.params.id); // Obtenemos el ID desde los parámetros.
-    const index = datos.usuarios.findIndex((usuario) => usuario.id === id); // Buscamos el índice del usuario.
+app.put('/ActualizarUsuarios/:id', (req, res) => {
+    const datos = leerDatos();
+    const id = parseInt(req.params.id);
+    const index = datos.usuarios.findIndex((u) => u.id === id);
     if (index !== -1) {
-        datos.usuarios[index] = { ...datos.usuarios[index], ...body }; // Actualizamos los datos del usuario.
-        escribir(datos); // Guardamos los cambios en el archivo.
-        res.json({ message: "Usuario actualizado" }); // Confirmamos la actualización.
+        datos.usuarios[index] = { ...datos.usuarios[index], ...req.body };
+        escribirDatos(datos);
+        res.json({ message: 'Usuario actualizado' });
     } else {
-        res.status(404).send("Usuario no encontrado."); // Si no existe, devolvemos un error 404.
+        res.status(404).send('Usuario no encontrado.');
     }
 });
 
-// Eliminar un usuario por su ID.
-app.delete('/EliminarUsuario/:id', (req, res) => {
-    const datos = leerDatos(); // Leemos los datos existentes.
-    const id = parseInt(req.params.id); // Obtenemos el ID desde los parámetros.
-    const index = datos.usuarios.findIndex((usuario) => usuario.id === id); // Buscamos el índice del usuario.
-    if (index !== -1) {
-        datos.usuarios.splice(index, 1); // Eliminamos el usuario del array.
-        escribir(datos); // Guardamos los cambios en el archivo.
-        res.json({ message: "Usuario eliminado" }); // Confirmamos la eliminación.
-    } else {
-        res.status(404).send("Usuario no encontrado."); // Si no existe, devolvemos un error 404.
-    }
+app.delete('/EliminarUsuarios/:id', (req, res) => {
+    const datos = leerDatos();
+    const id = parseInt(req.params.id);
+    datos.usuarios = datos.usuarios.filter((u) => u.id !== id);
+    escribirDatos(datos);
+    res.json({ message: 'Usuario eliminado' });
 });
 
-// ** Rutas para gestionar cuentas. */
-
-// Listar todas las cuentas.
+// -------------------CUENTAS BANCARIAS-----------------------
 app.get('/ListarCuentas', (req, res) => {
-    const datos = leerDatos(); // Leemos los datos existentes.
-    res.json(datos.cuentas); // Devolvemos la lista de cuentas en formato JSON.
+    const datos = leerDatos();
+    res.json(datos.cuentas);
 });
 
-// Buscar una cuenta por su ID.
-app.get('/BuscarCuenta/:id', (req, res) => {
-    const datos = leerDatos(); // Leemos los datos existentes.
-    const id = parseInt(req.params.id); // Obtenemos el ID desde los parámetros.
-    const cuenta = datos.cuentas.find((cuenta) => cuenta.id === id); // Buscamos la cuenta por ID.
-    if (cuenta) {
-        res.json(cuenta); // Si existe, la devolvemos en la respuesta.
-    } else {
-        res.status(404).send("Cuenta no encontrada."); // Si no existe, devolvemos un error 404.
-    }
+app.get('/ListarCuentas/:id', (req, res) => {
+    const datos = leerDatos();
+    const id = parseInt(req.params.id);
+    const cuenta = datos.cuentas.find((c) => c.id === id);
+    cuenta ? res.json(cuenta) : res.status(404).send('Cuenta no encontrada.');
 });
 
-// Crear una nueva cuenta.
-app.post('/SubirCuenta', (req, res) => {
-    const datos = leerDatos(); // Leemos los datos existentes.
-    const body = req.body; // Obtenemos los datos del cuerpo de la solicitud.
+app.post('/SubirCuentas', (req, res) => {
+    const datos = leerDatos();
+    const { usuarioId, fechaApertura, ...resto } = req.body;
 
-    // Verificamos que el usuario asociado exista.
-    const usuarioAsociado = datos.usuarios.find((usuario) => usuario.id === body.usuarioId);
-    if (!usuarioAsociado) {
-        return res.status(400).send("La cuenta debe estar asociada a un usuario existente.");
+    // Validación: Usuario asociado existe
+    const usuario = datos.usuarios.find((u) => u.id === usuarioId);
+    if (!usuario) {
+        return res.status(400).json({ error: 'El usuario asociado no existe.' });
     }
 
-    // Validamos que la fecha de apertura sea válida.
-    if (!validarFecha(body.fechaApertura)) {
-        return res.status(400).send("La fecha de apertura no puede ser anterior a hoy.");
+    // Validación: Fecha de apertura no puede ser anterior a hoy
+    const hoy = new Date().toISOString().split('T')[0];
+    if (new Date(fechaApertura) < new Date(hoy)) {
+        return res.status(400).json({ error: 'La fecha de apertura no puede ser anterior a hoy.' });
     }
 
-    // Creamos la nueva cuenta.
     const nuevaCuenta = {
-        id: datos.cuentas.length + 1, // Generamos un nuevo ID.
-        ...body, // Añadimos los datos enviados.
+        id: datos.cuentas.length + 1,
+        usuarioId,
+        fechaApertura,
+        ...resto,
     };
-    datos.cuentas.push(nuevaCuenta); // Agregamos la cuenta al array.
-    escribir(datos); // Guardamos los cambios en el archivo.
-    res.json(nuevaCuenta); // Devolvemos la nueva cuenta en la respuesta.
+
+    datos.cuentas.push(nuevaCuenta);
+    escribirDatos(datos);
+
+    res.json(nuevaCuenta);
 });
 
-// Actualizar una cuenta existente por su ID.
-app.put('/ActualizarCuenta/:id', (req, res) => {
-    const datos = leerDatos(); // Leemos los datos existentes.
-    const body = req.body; // Obtenemos los datos actualizados del cuerpo.
-    const id = parseInt(req.params.id); // Obtenemos el ID desde los parámetros.
-    const index = datos.cuentas.findIndex((cuenta) => cuenta.id === id); // Buscamos el índice de la cuenta.
+app.put('/ActualizarCuentas/:id', (req, res) => {
+    const datos = leerDatos();
+    const id = parseInt(req.params.id);
+    const index = datos.cuentas.findIndex((c) => c.id === id);
     if (index !== -1) {
-        datos.cuentas[index] = { ...datos.cuentas[index], ...body }; // Actualizamos los datos de la cuenta.
-        escribir(datos); // Guardamos los cambios en el archivo.
-        res.json({ message: "Cuenta actualizada" }); // Confirmamos la actualización.
+        datos.cuentas[index] = { ...datos.cuentas[index], ...req.body };
+        escribirDatos(datos);
+        res.json({ message: 'Cuenta actualizada' });
     } else {
-        res.status(404).send("Cuenta no encontrada."); // Si no existe, devolvemos un error 404.
+        res.status(404).send('Cuenta no encontrada.');
     }
 });
 
-// Eliminar una cuenta por su ID.
-app.delete('/EliminarCuenta/:id', (req, res) => {
-    const datos = leerDatos(); // Leemos los datos existentes.
-    const id = parseInt(req.params.id); // Obtenemos el ID desde los parámetros.
-    const index = datos.cuentas.findIndex((cuenta) => cuenta.id === id); // Buscamos el índice de la cuenta.
-    if (index !== -1) {
-        datos.cuentas.splice(index, 1); // Eliminamos la cuenta del array.
-        escribir(datos); // Guardamos los cambios en el archivo.
-        res.json({ message: "Cuenta eliminada" }); // Confirmamos la eliminación.
-    } else {
-        res.status(404).send("Cuenta no encontrada."); // Si no existe, devolvemos un error 404.
-    }
+app.delete('/EliminarCuentas/:id', (req, res) => {
+    const datos = leerDatos();
+    const id = parseInt(req.params.id);
+    datos.cuentas = datos.cuentas.filter((c) => c.id !== id);
+    escribirDatos(datos);
+    res.json({ message: 'Cuenta eliminada' });
 });
 
-// ** Rutas para gestionar transacciones. */
-
-// Listar todas las transacciones.
+// -------------------TRANSACCIONES-----------------------
 app.get('/ListarTransacciones', (req, res) => {
-    const datos = leerDatos(); // Leemos los datos existentes.
-    res.json(datos.transacciones); // Devolvemos la lista de transacciones.
+    const datos = leerDatos();
+    res.json(datos.transacciones);
 });
 
-// Buscar una transacción por su ID.
-app.get('/BuscarTransaccion/:id', (req, res) => {
-    const datos = leerDatos(); // Leemos los datos existentes.
-    const id = parseInt(req.params.id); // Obtenemos el ID desde los parámetros.
-    const transaccion = datos.transacciones.find((transaccion) => transaccion.id === id); // Buscamos la transacción.
-    if (transaccion) {
-        res.json(transaccion); // Si existe, la devolvemos.
-    } else {
-        res.status(404).send("Transacción no encontrada."); // Si no existe, devolvemos un error 404.
-    }
-});
+app.post('/SubirTransacciones', (req, res) => {
+    const datos = leerDatos();
+    const { tipo, monto, cuentaOrigen, cuentaDestino, fecha } = req.body;
 
-// Crear una nueva transacción.
-app.post('/SubirTransaccion', (req, res) => {
-    const datos = leerDatos(); // Leemos los datos existentes.
-    const body = req.body; // Obtenemos los datos del cuerpo.
-
-    // Verificamos que la cuenta de origen exista.
-    const cuentaOrigen = datos.cuentas.find((cuenta) => cuenta.numeroCuenta === body.cuentaOrigen);
-    if (!cuentaOrigen) {
-        return res.status(400).send("La cuenta de origen no existe.");
+    // Validación: Fecha no puede ser anterior a hoy
+    const hoy = new Date().toISOString().split('T')[0];
+    if (new Date(fecha) < new Date(hoy)) {
+        return res.status(400).json({ error: 'La fecha no puede ser anterior a hoy.' });
     }
 
-    // Lógica para diferentes tipos de transacciones.
-    if (body.tipoTransaccion === 'Transferencia') {
-        // Transferencia: verificamos la cuenta de destino y el saldo.
-        const cuentaDestino = datos.cuentas.find((cuenta) => cuenta.numeroCuenta === body.cuentaDestino);
-        if (!cuentaDestino) {
-            return res.status(400).send("La cuenta de destino no existe.");
-        }
-        if (!validarSaldoSuficiente(cuentaOrigen, body.monto)) {
-            return res.status(400).send("Saldo insuficiente para la transferencia.");
-        }
-        // Realizamos la transferencia.
-        cuentaOrigen.saldoActual -= body.monto;
-        cuentaDestino.saldoActual += body.monto;
-    } else if (body.tipoTransaccion === 'Retiro') {
-        // Retiro: verificamos saldo suficiente.
-        if (!validarSaldoSuficiente(cuentaOrigen, body.monto)) {
-            return res.status(400).send("Saldo insuficiente para el retiro.");
-        }
-        cuentaOrigen.saldoActual -= body.monto;
-    } else if (body.tipoTransaccion === 'Depósito') {
-        // Depósito: simplemente añadimos el monto.
-        cuentaOrigen.saldoActual += body.monto;
+    // Validación: Cuenta de origen existe
+    const origen = datos.cuentas.find((c) => c.id === cuentaOrigen);
+    if (!origen) {
+        return res.status(400).json({ error: 'La cuenta de origen no existe.' });
     }
 
-    // Creamos la nueva transacción.
+    // Validación: Saldo suficiente para transferencias/retiros
+    if ((tipo === 'transferencia' || tipo === 'retiro') && origen.saldo < monto) {
+        return res.status(400).json({ error: 'Saldo insuficiente en la cuenta de origen.' });
+    }
+
+    // Validación: Cuenta de destino existe (para transferencias)
+    if (tipo === 'transferencia') {
+        const destino = datos.cuentas.find((c) => c.id === cuentaDestino);
+        if (!destino) {
+            return res.status(400).json({ error: 'La cuenta de destino no existe.' });
+        }
+    }
+
     const nuevaTransaccion = {
-        id: datos.transacciones.length + 1, // Generamos un nuevo ID.
-        ...body, // Añadimos los datos enviados.
+        id: datos.transacciones.length + 1,
+        tipo,
+        monto,
+        cuentaOrigen,
+        cuentaDestino,
+        fecha,
     };
-    datos.transacciones.push(nuevaTransaccion); // Agregamos la transacción al array.
-    escribir(datos); // Guardamos los cambios en el archivo.
-    res.json(nuevaTransaccion); // Devolvemos la nueva transacción.
-});
 
-// Actualizar una transacción existente.
-app.put('/ActualizarTransaccion/:id', (req, res) => {
-    const datos = leerDatos(); // Leemos los datos existentes.
-    const body = req.body; // Obtenemos los datos actualizados del cuerpo.
-    const id = parseInt(req.params.id); // Obtenemos el ID desde los parámetros.
-    const index = datos.transacciones.findIndex((transaccion) => transaccion.id === id); // Buscamos la transacción.
-    if (index !== -1) {
-        datos.transacciones[index] = { ...datos.transacciones[index], ...body }; // Actualizamos la transacción.
-        escribir(datos); // Guardamos los cambios en el archivo.
-        res.json({ message: "Transacción actualizada" }); // Confirmamos la actualización.
-    } else {
-        res.status(404).send("Transacción no encontrada."); // Si no existe, devolvemos un error 404.
+    // Actualización de saldos
+    if (tipo === 'retiro' || tipo === 'transferencia') {
+        origen.saldo -= monto;
     }
-});
-
-// Eliminar una transacción por su ID.
-app.delete('/EliminarTransaccion/:id', (req, res) => {
-    const datos = leerDatos(); // Leemos los datos existentes.
-    const id = parseInt(req.params.id); // Obtenemos el ID desde los parámetros.
-    const index = datos.transacciones.findIndex((transaccion) => transaccion.id === id); // Buscamos la transacción.
-    if (index !== -1) {
-        datos.transacciones.splice(index, 1); // Eliminamos la transacción.
-        escribir(datos); // Guardamos los cambios en el archivo.
-        res.json({ message: "Transacción eliminada" }); // Confirmamos la eliminación.
-    } else {
-        res.status(404).send("Transacción no encontrada."); // Si no existe, devolvemos un error 404.
+    if (tipo === 'depósito') {
+        origen.saldo += monto;
     }
+    if (tipo === 'transferencia') {
+        const destino = datos.cuentas.find((c) => c.id === cuentaDestino);
+        destino.saldo += monto;
+    }
+
+    datos.transacciones.push(nuevaTransaccion);
+    escribirDatos(datos);
+
+    res.json(nuevaTransaccion);
 });
 
-// ** Inicio del servidor. */
+// -------------------TARJETAS-----------------------
+app.get('/ListarTarjetas', (req, res) => {
+    const datos = leerDatos();
+    res.json(datos.tarjetas);
+});
 
-// Arrancamos el servidor en el puerto definido.
+app.post('/SubirTarjetas', (req, res) => {
+    const datos = leerDatos();
+    const nuevaTarjeta = {
+        id: datos.tarjetas.length + 1,
+        ...req.body,
+    };
+    datos.tarjetas.push(nuevaTarjeta);
+    escribirDatos(datos);
+    res.json(nuevaTarjeta);
+});
+
+// -------------------PRÉSTAMOS-----------------------
+app.get('/ListarPrestamos', (req, res) => {
+    const datos = leerDatos();
+    res.json(datos.prestamos);
+});
+
+app.post('/SubirPrestamos', (req, res) => {
+    const datos = leerDatos();
+    const nuevoPrestamo = {
+        id: datos.prestamos.length + 1,
+        ...req.body,
+    };
+    datos.prestamos.push(nuevoPrestamo);
+    escribirDatos(datos);
+    res.json(nuevoPrestamo);
+});
+
 app.listen(port, () => {
-    console.log(`Servidor escuchando en http://localhost:${port}`); // Mensaje de confirmación.
+    console.log(`Servidor escuchando en http://localhost:${port}`);
 });
