@@ -1,0 +1,81 @@
+{
+    "usuarios": [
+        {
+            "id": 1,
+            "nombre": "Juan Pérez",
+            "direccion": "Calle Falsa 123",
+            "contacto": "juan.perez@gmail.com",
+            "usuario": "jperez",
+            "contraseña": "123456"
+        },
+        {
+            "id": 2,
+            "nombre": "María García",
+            "direccion": "Av. Siempre Viva 456",
+            "contacto": "maria.garcia@gmail.com",
+            "usuario": "mgarcia",
+            "contraseña": "654321"
+        }
+    ],
+    "cuentas": [
+        {
+            "id": 1,
+            "numeroCuenta": "1234567890",
+            "tipoCuenta": "Corriente",
+            "saldoActual": 5000,
+            "fechaApertura": "2024-01-15",
+            "usuarioId": 1
+        },
+        {
+            "id": 2,
+            "numeroCuenta": "0987654321",
+            "tipoCuenta": "Ahorro",
+            "saldoActual": 15000,
+            "fechaApertura": "2023-12-10",
+            "usuarioId": 2
+        }
+    ],
+    "transacciones": [
+        {
+            "id": 1,
+            "tipoTransaccion": "Depósito",
+            "monto": 1000,
+            "fechaHora": "2024-11-12T10:00:00",
+            "cuentaOrigen": "1234567890",
+            "cuentaDestino": null
+        },
+        {
+            "id": 2,
+            "tipoTransaccion": "Transferencia",
+            "monto": 500,
+            "fechaHora": "2024-11-13T12:30:00",
+            "cuentaOrigen": "1234567890",
+            "cuentaDestino": "0987654321"
+        }
+    ],
+    "tarjetas": [
+        {
+            "id": 1,
+            "numeroTarjeta": "4111111111111111",
+            "tipoTarjeta": "Débito",
+            "fechaVencimiento": "2026-08-30",
+            "limiteCredito": null
+        },
+        {
+            "id": 2,
+            "numeroTarjeta": "5555555555554444",
+            "tipoTarjeta": "Crédito",
+            "fechaVencimiento": "2027-01-20",
+            "limiteCredito": 10000
+        }
+    ],
+    "prestamos": [
+        {
+            "id": 1,
+            "montoPrestamo": 20000,
+            "tasaInteres": 5,
+            "plazo": "24 meses",
+            "pagosMensuales": 880
+        }
+    ]
+}
